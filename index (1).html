@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rishabh Dutt — Full-Stack Developer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a1626;
+    --bg-panel:#0d1e33;
+    --grid-line: rgba(93,179,196,0.09);
+    --grid-line-strong: rgba(93,179,196,0.16);
+    --cyan:#57d8c9;
+    --cyan-dim: rgba(87,216,201,0.35);
+    --amber:#f0a94e;
+    --text:#e9f1f6;
+    --text-muted:#7d94a8;
+    --text-faint:#4f6376;
+    --border:#1c3350;
+    --radius: 2px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter', sans-serif;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{ background: var(--cyan); color:#04141f; }
+
+  .blueprint-grid{
+    position:fixed;
+    inset:0;
+    z-index:0;
+    background-image:
+      linear-gradient(var(--grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events:none;
+  }
+  .blueprint-grid::before{
+    content:"";
+    position:absolute; inset:0;
+    background-image:
+      linear-gradient(var(--grid-line-strong) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line-strong) 1px, transparent 1px);
+    background-size: 200px 200px;
+  }
+
+  .sheet{
+    position:relative;
+    z-index:1;
+    max-width:1040px;
+    margin:0 auto;
+    padding: 0 32px;
+  }
+
+  /* Registration marks — corner crop marks like a drafting sheet */
+  .reg-mark{
+    position:fixed; z-index:5;
+    width:22px; height:22px;
+    pointer-events:none;
+  }
+  .reg-mark::before,.reg-mark::after{ content:""; position:absolute; background:var(--text-faint); }
+  .reg-mark::before{ width:100%; height:1px; top:50%; }
+  .reg-mark::after{ height:100%; width:1px; left:50%; }
+  .reg-tl{ top:20px; left:20px; } .reg-tr{ top:20px; right:20px; }
+  .reg-bl{ bottom:20px; left:20px; } .reg-br{ bottom:20px; right:20px; }
+  @media (max-width:700px){ .reg-mark{ display:none; } }
+
+  .label-mono{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--cyan);
+  }
+  .label-mono .dim{ color:var(--text-faint); }
+
+  h1,h2,h3{ font-family:'Space Grotesk', sans-serif; margin:0; letter-spacing:-0.01em; }
+
+  a{ color:inherit; }
+
+  /* NAV */
+  header.nav{
+    position:sticky; top:0; z-index:10;
+    background:rgba(10,22,38,0.85);
+    backdrop-filter: blur(8px);
+    border-bottom:1px solid var(--border);
+  }
+  .nav-inner{
+    max-width:1040px; margin:0 auto; padding:16px 32px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .nav-mark{ font-family:'JetBrains Mono', monospace; font-size:13px; color:var(--text); }
+  .nav-mark span{ color:var(--cyan); }
+  nav.links{ display:flex; gap:28px; }
+  nav.links a{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px; text-transform:uppercase; letter-spacing:0.08em;
+    color:var(--text-muted); text-decoration:none;
+    padding-bottom:2px; border-bottom:1px solid transparent;
+    transition: color .2s, border-color .2s;
+  }
+  nav.links a:hover{ color:var(--cyan); border-color:var(--cyan); }
+  @media (max-width:640px){ nav.links{ gap:16px; } nav.links a{ font-size:10.5px; } }
+
+  /* HERO */
+  .hero{ padding:96px 0 72px; position:relative; }
+  .hero-top{ display:flex; align-items:center; gap:10px; margin-bottom:28px; }
+  .hero-top .rule{ flex:1; height:1px; background:var(--border); }
+  .hero h1{ font-size:clamp(40px, 7vw, 76px); font-weight:600; line-height:1.02; }
+  .hero h1 em{ font-style:normal; color:var(--cyan); }
+  .hero .role{ font-family:'JetBrains Mono', monospace; color:var(--amber); font-size:15px; margin-top:18px; letter-spacing:0.02em; }
+  .hero p.desc{ max-width:560px; color:var(--text-muted); font-size:16px; margin-top:20px; }
+
+  .cta-row{ display:flex; flex-wrap:wrap; gap:14px; margin-top:36px; }
+  .btn{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12.5px; text-transform:uppercase; letter-spacing:0.06em;
+    padding:12px 20px; border-radius:var(--radius);
+    text-decoration:none; display:inline-flex; align-items:center; gap:8px;
+    transition: all .18s ease; border:1px solid var(--border);
+  }
+  .btn-primary{ background:var(--cyan); color:#04141f; border-color:var(--cyan); font-weight:500; }
+  .btn-primary:hover{ background:#79e6d9; }
+  .btn-ghost{ color:var(--text); }
+  .btn-ghost:hover{ border-color:var(--cyan); color:var(--cyan); }
+
+  /* SCHEMATIC DIAGRAM */
+  .schematic{ margin-top:64px; border:1px solid var(--border); background:var(--bg-panel); border-radius:var(--radius); padding:28px 20px 20px; }
+  .schematic-caption{ display:flex; justify-content:space-between; margin-bottom:14px; }
+  svg.pipeline{ width:100%; height:auto; display:block; }
+  .pipe-line{ fill:none; stroke:var(--border); stroke-width:2; }
+  .pipe-node-ring{ fill:var(--bg-panel); stroke:var(--cyan-dim); stroke-width:1.5; }
+  .pipe-node-dot{ fill:var(--cyan); }
+  .pipe-label{ font-family:'JetBrains Mono', monospace; font-size:10.5px; fill:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; }
+  .packet{ fill:var(--amber); }
+  @media (prefers-reduced-motion: no-preference){
+    .packet-a{ offset-path:path("M40,60 L200,60 L200,130 L400,130 L400,60 L560,60"); animation: travel 3.2s linear infinite; }
+    .packet-b{ offset-path:path("M40,60 L200,60 L200,130 L400,130 L400,60 L560,60"); animation: travel 3.2s linear infinite; animation-delay:1.6s; }
+    @keyframes travel{ 0%{ offset-distance:0%; opacity:0; } 5%{ opacity:1; } 95%{ opacity:1; } 100%{ offset-distance:100%; opacity:0; } }
+  }
+
+  section{ padding:64px 0; border-top:1px solid var(--border); position:relative; }
+  .sec-head{ display:flex; align-items:baseline; gap:16px; margin-bottom:40px; flex-wrap:wrap; }
+  .sec-head h2{ font-size:28px; font-weight:600; }
+  .sec-head .rule{ flex:1; height:1px; background:var(--border); min-width:40px; }
+
+  /* ABOUT */
+  .about-grid{ display:grid; grid-template-columns: 1.3fr 1fr; gap:48px; }
+  @media (max-width:760px){ .about-grid{ grid-template-columns:1fr; } }
+  .about-grid p{ color:var(--text-muted); margin-bottom:16px; }
+  .about-grid strong{ color:var(--text); font-weight:500; }
+  .stat-panel{ border:1px solid var(--border); background:var(--bg-panel); border-radius:var(--radius); padding:22px; }
+  .stat-row{ display:flex; justify-content:space-between; padding:12px 0; border-bottom:1px dashed var(--border); font-size:14px; }
+  .stat-row:last-child{ border-bottom:none; }
+  .stat-row .k{ color:var(--text-muted); }
+  .stat-row .v{ font-family:'JetBrains Mono', monospace; color:var(--cyan); text-align:right; }
+
+  /* EXPERIENCE — revision history */
+  .rev-row{ display:grid; grid-template-columns: 90px 1fr; gap:24px; padding:24px 0; border-bottom:1px solid var(--border); }
+  .rev-row:last-child{ border-bottom:none; }
+  .rev-tag{ font-family:'JetBrains Mono', monospace; font-size:13px; color:var(--amber); }
+  .rev-tag .date{ display:block; font-size:10.5px; color:var(--text-faint); margin-top:6px; letter-spacing:0.04em; }
+  .rev-body h3{ font-size:19px; font-weight:600; }
+  .rev-body .org{ color:var(--cyan); font-family:'JetBrains Mono', monospace; font-size:12.5px; margin-top:4px; display:block; }
+  .rev-body ul{ margin:14px 0 0; padding-left:18px; color:var(--text-muted); font-size:14.5px; }
+  .rev-body li{ margin-bottom:6px; }
+
+  /* PROJECTS */
+  .proj-grid{ display:grid; grid-template-columns: repeat(3, 1fr); gap:22px; }
+  @media (max-width:900px){ .proj-grid{ grid-template-columns:1fr; } }
+  .proj-card{ border:1px solid var(--border); background:var(--bg-panel); border-radius:var(--radius); padding:24px; display:flex; flex-direction:column; transition:border-color .2s, transform .2s; }
+  .proj-card:hover{ border-color:var(--cyan-dim); transform:translateY(-3px); }
+  .proj-tag{ font-family:'JetBrains Mono', monospace; font-size:10px; color:var(--text-faint); letter-spacing:0.1em; }
+  .proj-card h3{ font-size:19px; margin-top:10px; }
+  .proj-card p{ color:var(--text-muted); font-size:14px; margin-top:12px; flex:1; }
+  .proj-stack{ display:flex; flex-wrap:wrap; gap:6px; margin-top:16px; }
+  .chip{ font-family:'JetBrains Mono', monospace; font-size:10px; color:var(--cyan); border:1px solid var(--cyan-dim); border-radius:20px; padding:3px 9px; }
+  .proj-links{ margin-top:18px; display:flex; gap:16px; }
+  .proj-links a{ font-family:'JetBrains Mono', monospace; font-size:11.5px; text-transform:uppercase; color:var(--text-muted); text-decoration:none; border-bottom:1px solid var(--border); }
+  .proj-links a:hover{ color:var(--cyan); border-color:var(--cyan); }
+
+  /* BOM — bill of materials / skills */
+  .bom{ width:100%; border-collapse:collapse; font-size:14px; }
+  .bom th{ text-align:left; font-family:'JetBrains Mono', monospace; font-size:10.5px; color:var(--text-faint); text-transform:uppercase; letter-spacing:0.08em; padding:0 0 10px; border-bottom:1px solid var(--border); font-weight:400; }
+  .bom td{ padding:14px 0; border-bottom:1px solid var(--border); vertical-align:top; color:var(--text-muted); }
+  .bom tr:last-child td{ border-bottom:none; }
+  .bom td.no{ font-family:'JetBrains Mono', monospace; color:var(--amber); width:36px; }
+  .bom td.cat{ color:var(--text); font-weight:500; width:180px; }
+  .bom td.items span{ display:inline-block; margin:0 12px 6px 0; }
+
+  /* ACHIEVEMENTS */
+  .ach-grid{ display:grid; grid-template-columns:1fr 1fr; gap:22px; }
+  @media (max-width:700px){ .ach-grid{ grid-template-columns:1fr; } }
+  .ach-card{ border:1px solid var(--border); background:var(--bg-panel); padding:22px; border-radius:var(--radius); }
+  .ach-card .label-mono{ margin-bottom:10px; display:block; }
+  .ach-card h3{ font-size:17px; }
+  .ach-card p{ color:var(--text-muted); font-size:14px; margin-top:8px; }
+
+  /* FOOTER */
+  footer{ padding:56px 0 80px; }
+  .footer-inner{ display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:24px; }
+  .footer-inner h2{ font-size:30px; font-weight:600; }
+  .footer-inner .rule{ height:1px; background:var(--border); margin:28px 0; }
+  .foot-links{ display:flex; gap:24px; flex-wrap:wrap; }
+  .foot-links a{ font-family:'JetBrains Mono', monospace; font-size:12px; text-transform:uppercase; color:var(--text-muted); text-decoration:none; }
+  .foot-links a:hover{ color:var(--cyan); }
+  .foot-note{ color:var(--text-faint); font-size:12px; font-family:'JetBrains Mono', monospace; margin-top:8px; }
+
+  .reveal{ opacity:0; transform:translateY(16px); transition:opacity .6s ease, transform .6s ease; }
+  .reveal.in{ opacity:1; transform:translateY(0); }
+  @media (prefers-reduced-motion: reduce){ .reveal{ opacity:1; transform:none; transition:none; } }
+
+  :focus-visible{ outline:2px solid var(--cyan); outline-offset:2px; }
+</style>
+</head>
+<body>
+
+<div class="blueprint-grid"></div>
+<div class="reg-mark reg-tl"></div>
+<div class="reg-mark reg-tr"></div>
+<div class="reg-mark reg-bl"></div>
+<div class="reg-mark reg-br"></div>
+
+<header class="nav">
+  <div class="nav-inner">
+    <div class="nav-mark">RD<span>_</span>2026</div>
+    <nav class="links">
+      <a href="#about">About</a>
+      <a href="#experience">Experience</a>
+      <a href="#projects">Projects</a>
+      <a href="#skills">Skills</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<main class="sheet">
+
+  <section class="hero" style="border:none; padding-top:72px;">
+    <div class="hero-top">
+      <span class="label-mono">SHEET 01 <span class="dim">/ INDEX</span></span>
+      <div class="rule"></div>
+      <span class="label-mono dim">PATIALA, IN</span>
+    </div>
+    <h1>Rishabh Dutt<br><em>builds the pipes.</em></h1>
+    <div class="role">FULL-STACK DEVELOPER — B.TECH CSE, THAPAR INSTITUTE '28</div>
+    <p class="desc">APIs, queues, and databases that move data reliably — from CRM
+    backends and location-based event platforms to AI-assisted finance tools
+    and computer-vision pipelines.</p>
+
+    <div class="cta-row">
+      <a class="btn btn-primary" href="#projects">View projects →</a>
+      <a class="btn btn-ghost" href="https://github.com/Rishabh200729?tab=repositories" target="_blank" rel="noopener">GitHub</a>
+      <a class="btn btn-ghost" href="https://www.linkedin.com/in/rishabh-dutt-a05a66210/" target="_blank" rel="noopener">LinkedIn</a>
+      <a class="btn btn-ghost" href="resume.pdf" target="_blank" rel="noopener">Download resume ↓</a>
+    </div>
+
+    <div class="schematic reveal">
+      <div class="schematic-caption">
+        <span class="label-mono">FIG. 1.1 <span class="dim">— REQUEST PIPELINE</span></span>
+        <span class="label-mono dim">EVENTSNEAREME / MERN STACK</span>
+      </div>
+      <svg class="pipeline" viewBox="0 0 600 160" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagram of a request travelling from client through API, queue, cache and database and back">
+        <path class="pipe-line" d="M40,60 L200,60 L200,130 L400,130 L400,60 L560,60" />
+        <circle class="pipe-node-ring" cx="40" cy="60" r="9"/>
+        <circle class="pipe-node-dot" cx="40" cy="60" r="3.5"/>
+        <text class="pipe-label" x="40" y="42" text-anchor="middle">Client</text>
+
+        <circle class="pipe-node-ring" cx="200" cy="60" r="9"/>
+        <circle class="pipe-node-dot" cx="200" cy="60" r="3.5"/>
+        <text class="pipe-label" x="200" y="42" text-anchor="middle">Node / Express</text>
+
+        <circle class="pipe-node-ring" cx="200" cy="130" r="9"/>
+        <circle class="pipe-node-dot" cx="200" cy="130" r="3.5"/>
+        <text class="pipe-label" x="200" y="150" text-anchor="middle">RabbitMQ</text>
+
+        <circle class="pipe-node-ring" cx="400" cy="130" r="9"/>
+        <circle class="pipe-node-dot" cx="400" cy="130" r="3.5"/>
+        <text class="pipe-label" x="400" y="150" text-anchor="middle">Redis cache</text>
+
+        <circle class="pipe-node-ring" cx="400" cy="60" r="9"/>
+        <circle class="pipe-node-dot" cx="400" cy="60" r="3.5"/>
+        <text class="pipe-label" x="400" y="42" text-anchor="middle">MongoDB</text>
+
+        <circle class="pipe-node-ring" cx="560" cy="60" r="9"/>
+        <circle class="pipe-node-dot" cx="560" cy="60" r="3.5"/>
+        <text class="pipe-label" x="560" y="42" text-anchor="middle">Response</text>
+
+        <circle class="packet packet-a" r="4"/>
+        <circle class="packet packet-b" r="4"/>
+      </svg>
+    </div>
+  </section>
+
+  <section id="about">
+    <div class="sec-head"><span class="label-mono dim">02</span><h2>About</h2><div class="rule"></div></div>
+    <div class="about-grid">
+      <div class="reveal">
+        <p>I'm a Computer Science undergrad at <strong>Thapar Institute of Engineering and Technology</strong>,
+        currently in my third year with a <strong>9.05 CGPA</strong>. My day-to-day is full-stack
+        development — React, Node, Postgres, Mongo — but the parts I chase outside of coursework
+        are computer vision and semantic NLP.</p>
+        <p>That's taken shape as a <strong>YOLOv8 traffic-monitoring pipeline</strong> at Thapar's
+        research lab, and <strong>FinScribe</strong>, a semantic embedding system I built and later
+        used as the centerpiece of my Machine Learning Summer School application. I also compete in
+        hackathons — an AI-driven sustainability project won an Innovation Award recognized by
+        Ulster University and ASME USA.</p>
+      </div>
+      <div class="stat-panel reveal">
+        <div class="stat-row"><span class="k">Education</span><span class="v">B.Tech CSE, 2024–2028</span></div>
+        <div class="stat-row"><span class="k">CGPA</span><span class="v">9.05</span></div>
+        <div class="stat-row"><span class="k">DSA solved</span><span class="v">200+ on LeetCode</span></div>
+        <div class="stat-row"><span class="k">Focus areas</span><span class="v">Full-stack, CV, NLP</span></div>
+        <div class="stat-row"><span class="k">Based in</span><span class="v">Punjab, India</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="experience">
+    <div class="sec-head"><span class="label-mono dim">03</span><h2>Experience</h2><div class="rule"></div></div>
+
+    <div class="rev-row reveal">
+      <div class="rev-tag">REV C<span class="date">MAY–JUL 2026</span></div>
+      <div class="rev-body">
+        <h3>MERN Stack Developer Intern</h3>
+        <span class="org">Frisky Trails — Remote, India</span>
+        <ul>
+          <li>Built a full-stack CRM platform from scratch with React, Node.js and Express to streamline lead tracking.</li>
+          <li>Engineered a secure backend with MongoDB and JWT auth; integrated Cloudinary for file storage and Nodemailer for automated emails.</li>
+          <li>Worked in Git/GitHub feature-branch workflows with code review and multiple PR merges.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="rev-row reveal">
+      <div class="rev-tag">REV B<span class="date">FEB–SEP 2025</span></div>
+      <div class="rev-body">
+        <h3>Web Developer Intern</h3>
+        <span class="org">First Contact — Remote, India</span>
+        <ul>
+          <li>Designed Firebase Firestore queries for real-time data retrieval in chat features.</li>
+          <li>Built real-time chat using WebSockets (Socket.io) and Wix Velo backend services.</li>
+          <li>Set up GitHub Actions CI/CD to speed up deployment.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="rev-row reveal">
+      <div class="rev-tag">REV A<span class="date">JUN–JUL 2025</span></div>
+      <div class="rev-body">
+        <h3>Research Intern</h3>
+        <span class="org">Thapar Institute of Engineering and Technology — Patiala, India</span>
+        <ul>
+          <li>Helped build a YOLOv8-based vehicle detection and tracking pipeline for real-time traffic monitoring.</li>
+          <li>Implemented lane-wise vehicle counting and speed estimation via centroid tracking.</li>
+          <li>Built a live analytics overlay for congestion level, flow efficiency, waiting time, and vehicle count.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="projects">
+    <div class="sec-head"><span class="label-mono dim">04</span><h2>Projects</h2><div class="rule"></div></div>
+    <div class="proj-grid">
+
+      <div class="proj-card reveal">
+        <span class="proj-tag">AI · FULL-STACK</span>
+        <h3>Finance Tracker</h3>
+        <p>AI-driven finance tracker using the Gemini API to auto-categorize
+        transactions and surface spending insights through a conversational
+        assistant. JWT-authenticated dashboard with real-time analytics via Recharts.</p>
+        <div class="proj-stack">
+          <span class="chip">Next.js 15</span><span class="chip">TypeScript</span>
+          <span class="chip">PostgreSQL</span><span class="chip">Drizzle ORM</span><span class="chip">Gemini AI</span>
+        </div>
+        <div class="proj-links"><a href="#" onclick="return false;">Live</a><a href="#" onclick="return false;">Github</a></div>
+      </div>
+
+      <div class="proj-card reveal">
+        <span class="proj-tag">MICROSERVICES</span>
+        <h3>EventsNearMe</h3>
+        <p>Location-based event discovery platform with React-Leaflet and SWR
+        for real-time interactive mapping without page reloads. Containerized
+        microservices with Redis caching and a RabbitMQ/Bull worker queue.</p>
+        <div class="proj-stack">
+          <span class="chip">Next.js</span><span class="chip">Node.js</span><span class="chip">MongoDB</span>
+          <span class="chip">Docker</span><span class="chip">Redis</span><span class="chip">RabbitMQ</span>
+        </div>
+        <div class="proj-links"><a href="#" onclick="return false;">Live</a><a href="#" onclick="return false;">Github</a></div>
+      </div>
+
+      <div class="proj-card reveal">
+        <span class="proj-tag">SEMANTIC NLP</span>
+        <h3>FinScribe</h3>
+        <p>A semantic embedding pipeline with a two-stage Dynamic Exemplar
+        Engine — zero-shot cosine similarity backed by few-shot matching, plus
+        explainability output. Benchmarked above 0.90 macro F1.</p>
+        <div class="proj-stack">
+          <span class="chip">Sentence Transformers</span><span class="chip">MiniLM-L6-v2</span><span class="chip">Python</span>
+        </div>
+        <div class="proj-links"><a href="https://github.com/Rishabh200729/FinScribe" target="_blank" rel="noopener">Github</a></div>
+      </div>
+
+    </div>
+  </section>
+
+  <section id="skills">
+    <div class="sec-head"><span class="label-mono dim">05</span><h2>Bill of materials</h2><div class="rule"></div></div>
+    <table class="bom">
+      <thead>
+        <tr><th>No.</th><th>Category</th><th>Items</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="no">01</td>
+          <td class="cat">Languages</td>
+          <td class="items"><span>JavaScript</span><span>TypeScript</span><span>Python</span><span>C++</span></td>
+        </tr>
+        <tr>
+          <td class="no">02</td>
+          <td class="cat">Frameworks</td>
+          <td class="items"><span>React.js</span><span>Next.js</span><span>Node.js</span><span>Express.js</span><span>Flask</span><span>FastAPI</span><span>Tailwind CSS</span><span>YOLOv8</span><span>OpenCV</span></td>
+        </tr>
+        <tr>
+          <td class="no">03</td>
+          <td class="cat">Data & messaging</td>
+          <td class="items"><span>PostgreSQL</span><span>MongoDB</span><span>Redis</span><span>Firebase</span><span>RabbitMQ</span></td>
+        </tr>
+        <tr>
+          <td class="no">04</td>
+          <td class="cat">Tooling</td>
+          <td class="items"><span>Docker</span><span>Git</span><span>GitHub Actions</span><span>Postman</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="label-mono dim">06</span><h2>Achievements</h2><div class="rule"></div></div>
+    <div class="ach-grid">
+      <div class="ach-card reveal">
+        <span class="label-mono">2025</span>
+        <h3>Innovation Award — Hackathon Winner</h3>
+        <p>Recognized by Ulster University and ASME USA for an AI-driven sustainability project.</p>
+      </div>
+      <div class="ach-card reveal">
+        <span class="label-mono">ONGOING</span>
+        <h3>200+ DSA problems solved</h3>
+        <p>Across arrays, dynamic programming, heaps, and graphs on LeetCode.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer id="contact">
+  <div class="sheet">
+    <div class="rule"></div>
+    <div class="footer-inner">
+      <div>
+        <span class="label-mono dim">SHEET 07 — CONTACT</span>
+        <h2>Let's build something.</h2>
+        <div class="foot-note">rishabhdutt792@gmail.com</div>
+      </div>
+      <div class="foot-links">
+        <a href="mailto:rishabhdutt792@gmail.com">Email</a>
+        <a href="https://github.com/Rishabh200729?tab=repositories" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://www.linkedin.com/in/rishabh-dutt-a05a66210/" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="resume.pdf" target="_blank" rel="noopener">Resume</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const els = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: 0.15 });
+  els.forEach(el => io.observe(el));
+</script>
+
+</body>
+</html>
